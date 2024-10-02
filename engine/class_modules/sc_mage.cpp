@@ -6653,6 +6653,9 @@ struct touch_of_the_magi_t final : public arcane_mage_spell_t
       td.touch_of_the_magi->expire();
       td.touch_of_the_magi->trigger();
 
+      if ( p()->is_ptr() && p()->talents.leydrinker.ok() )
+        p()->buffs.leydrinker->increment();
+
       if ( p()->talents.magis_spark.ok() )
       {
         p()->state.magis_spark_spells = 0;
