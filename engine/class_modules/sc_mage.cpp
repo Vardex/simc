@@ -7072,6 +7072,12 @@ struct splinter_t final : public mage_spell_t
         p()->expression_support.remaining_winters_chill = std::max( 0, wc );
       } );
     }
+
+    if ( splinterstorm && p()->specialization() == MAGE_ARCANE )
+    {
+      // TODO: Maybe check if it correspond to effect 4 or 5 of splinterstorm
+      p()->trigger_clearcasting( 0.05, 0_ms );
+    }
   }
 
   void impact( action_state_t* s ) override
