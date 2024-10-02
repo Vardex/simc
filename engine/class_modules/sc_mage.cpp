@@ -3546,7 +3546,7 @@ struct arcane_blast_t final : public arcane_mage_spell_t
       // last stack. Technically, the delay should be on Arcane Barrage as well, but
       // because it's an instant, it cannot be taken advantage of.
       // TODO: Check if AB -> PoM AB works (with low latency).
-      make_event( *sim, 15_ms, [ this ] { consume_nether_precision(); } );
+      make_event( *sim, p()->is_ptr() ? 0_ms : 15_ms, [ this ] { consume_nether_precision(); } );
       if ( p()->talents.dematerialize.ok() )
         p()->state.trigger_dematerialize = true;
       p()->trigger_splinter( target );
