@@ -900,6 +900,7 @@ public:
 
     // Row 4
     player_talent_t shifting_shards;
+    player_talent_t signature_spell;
     player_talent_t force_of_will;
     player_talent_t spellfrost_teachings;
 
@@ -6728,6 +6729,17 @@ struct magis_spark_t final : public arcane_mage_spell_t
     aoe = -1;
     background = true;
   }
+
+  void impact( action_state_t* s ) override
+  {
+    mage_spell_t::impact( s );
+
+    if ( !result_is_hit( s->result ) )
+      return;
+
+    int splinters = p()->talents.signature_spell->effectN( 1 ).base_value();
+    p()->trigger_splinter( nullptr, splinters );
+  }
 };
 
 struct magis_spark_echo_t final : public spell_t
@@ -8162,6 +8174,7 @@ void mage_t::init_spells()
   talents.volatile_magic       = find_talent_spell( talent_tree::HERO, "Volatile Magic"       );
   // Row 4
   talents.shifting_shards      = find_talent_spell( talent_tree::HERO, "Shifting Shards"      );
+  talents.signature_spell      = find_talent_spell( talent_tree::HERO, "Signature Spell"      );
   talents.force_of_will        = find_talent_spell( talent_tree::HERO, "Force of Will"        );
   talents.spellfrost_teachings = find_talent_spell( talent_tree::HERO, "Spellfrost Teachings" );
   // Row 5
