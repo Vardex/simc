@@ -328,6 +328,7 @@ public:
     // Arcane
     buff_t* aether_attunement;
     buff_t* aether_attunement_counter;
+    buff_t* aethervision;
     buff_t* arcane_charge;
     buff_t* arcane_familiar;
     buff_t* arcane_harmony;
@@ -668,6 +669,7 @@ public:
     player_talent_t arcane_tempo;
     player_talent_t concentrated_power;
     player_talent_t consortiums_bauble;
+    player_talent_t aethervision;
     player_talent_t arcing_cleave;
 
     // Row 4
@@ -3348,6 +3350,7 @@ struct arcane_barrage_t final : public arcane_mage_spell_t
   int glorious_incandescence_charges = 0;
   int arcane_soul_charges = 0;
   int intuition_charges = 0;
+  int aethervision_charges = 0;
 
   arcane_barrage_t( std::string_view n, mage_t* p, std::string_view options_str ) :
     arcane_mage_spell_t( n, p, p->find_specialization_spell( "Arcane Barrage" ) )
@@ -3360,6 +3363,7 @@ struct arcane_barrage_t final : public arcane_mage_spell_t
     glorious_incandescence_charges = as<int>( p->find_spell( 451223 )->effectN( 1 ).base_value() );
     arcane_soul_charges = as<int>( p->find_spell( 453413 )->effectN( 1 ).base_value() );
     intuition_charges = as<int>( p->find_spell( 455683 )->effectN( 1 ).base_value() );
+    aethervision_charges = as<int>( p->find_spell( 467636 )->effectN( 1 ).base_value() );
 
     if ( p->talents.orb_barrage.ok() )
     {
@@ -3406,6 +3410,12 @@ struct arcane_barrage_t final : public arcane_mage_spell_t
       if ( p()->talents.dematerialize.ok() )
         p()->state.trigger_dematerialize = true;
       p()->trigger_splinter( target );
+    }
+
+    if ( p()->buffs.aethervision->check() )
+    {
+      p()->trigger_arcane_charge( p()->buffs.aethervision->stack() * aethervision_charges );
+      p()->buffs.aethervision->expire();
     }
 
     if ( p()->buffs.leydrinker->check() )
@@ -3458,6 +3468,7 @@ struct arcane_barrage_t final : public arcane_mage_spell_t
     am *= 1.0 + p()->buffs.arcane_harmony->check_stack_value();
     am *= 1.0 + p()->buffs.nether_precision->check_value();
     am *= 1.0 + p()->buffs.intuition->check_value();
+    am *= 1.0 + p()->buffs.aethervision->check_stack_value();
 
     return am;
   }
@@ -3550,6 +3561,8 @@ struct arcane_blast_t final : public arcane_mage_spell_t
       if ( p()->talents.dematerialize.ok() )
         p()->state.trigger_dematerialize = true;
       p()->trigger_splinter( target );
+      if ( p()->talents.aethervision->ok() )
+        p()->buffs.aethervision->trigger();
     }
 
     if ( p()->buffs.leydrinker->check() )
@@ -7954,6 +7967,7 @@ void mage_t::init_spells()
   talents.arcane_tempo               = find_talent_spell( talent_tree::SPECIALIZATION, "Arcane Tempo"               );
   talents.concentrated_power         = find_talent_spell( talent_tree::SPECIALIZATION, "Concentrated Power"         );
   talents.consortiums_bauble         = find_talent_spell( talent_tree::SPECIALIZATION, "Consortium's Bauble"        );
+  talents.aethervision               = find_talent_spell( talent_tree::SPECIALIZATION, "Aethervision"               );
   talents.arcing_cleave              = find_talent_spell( talent_tree::SPECIALIZATION, "Arcing Cleave"              );
   // Row 4
   talents.arcane_familiar            = find_talent_spell( talent_tree::SPECIALIZATION, "Arcane Familiar"            );
@@ -8222,6 +8236,9 @@ void mage_t::create_buffs()
                                       ->set_default_value_from_effect( 1 );
   buffs.aether_attunement_counter = make_buff( this, "aether_attunement_counter", find_spell( 458388 ) )
                                       ->set_chance( talents.aether_attunement.ok() );
+  buffs.aethervision              = make_buff( this, "aethervision", find_spell( 467634 ) )
+                                      ->set_default_value_from_effect( 1 )
+                                      ->set_chance( talents.aethervision.ok() );
   buffs.arcane_charge             = make_buff( this, "arcane_charge", find_spell( 36032 ) )
                                       ->set_constant_behavior( buff_constant_behavior::NEVER_CONSTANT );
   buffs.arcane_familiar           = make_buff( this, "arcane_familiar", find_spell( 210126 ) )
